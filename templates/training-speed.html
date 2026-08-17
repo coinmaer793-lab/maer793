@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speed Reading</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <button class="lang-switch" onclick="toggleLanguage()">
+        <span class="flag" id="lang-flag">🇷🇺</span>
+        <span class="lang-text" id="lang-text">RU</span>
+    </button>
+
+    <div class="container">
+        <div class="logo">📖 BRAIN TRAINING</div>
+        
+        <div class="training-stats">
+            <span id="stat-round" data-lang-ru="Раунд:" data-lang-en="Round:">Раунд: <span id="round">1</span>/5</span>
+            <span id="stat-score" data-lang-ru="Очки:" data-lang-en="Score:">Очки: <span id="score">0</span></span>
+            <span id="stat-level" data-lang-ru="Уровень:" data-lang-en="Level:">Уровень: <span id="level-display">2</span></span>
+        </div>
+
+        <div class="card">
+            <div class="tips-container">
+                <div class="tips-header" onclick="toggleTips(this)">
+                    <div class="tips-title" id="tips-title" data-lang-ru="Совет по быстрому чтению" data-lang-en="Speed Reading Tip">Совет по быстрому чтению</div>
+                    <button class="tips-toggle">▼</button>
+                </div>
+                <div class="tips-body">
+                    <div class="tips-text" id="tips-text" data-lang-ru="<strong>Техника скоростного чтения:</strong><br>👀 Смотри на целые слова, не читай по буквам<br>📍 Веди взгляд по центру строки<br>🚫 Не возвращайся к прочитанному<br>🧠 Старайся уловить СМЫСЛ, а не слова" data-lang-en="<strong>Speed Reading Technique:</strong><br>👀 Look at whole words, don't read letter by letter<br>📍 Keep your eyes in the center of the line<br>🚫 Don't go back to what you've read<br>🧠 Try to grasp the MEANING, not the words">
+                        <strong>Техника скоростного чтения:</strong><br>
+                        👀 Смотри на целые слова, не читай по буквам<br>
+                        📍 Веди взгляд по центру строки<br>
+                        🚫 Не возвращайся к прочитанному<br>
+                        🧠 Старайся уловить СМЫСЛ, а не слова
+                    </div>
+                </div>
+            </div>
+
+            <h2 id="instruction" data-lang-ru="Прочитай текст и выбери правильный ответ" data-lang-en="Read the text and choose the correct answer">Прочитай текст и выбери правильный ответ</h2>
+            
+            <div id="text-display" style="font-size: 18px; line-height: 2; padding: 25px; background: #f8f9fa; border-radius: 15px; margin: 15px 0; text-align: left; color: #2D2D2D; min-height: 150px;"></div>
+            
+            <div id="timer" style="font-size: 24px; color: #6C63FF; margin: 10px 0;">⏱️ 15 sec</div>
+            
+            <div id="answer-area" class="hidden">
+                <p style="color: #555; margin-bottom: 15px;" id="choose-text" data-lang-ru="Выбери правильный ответ:" data-lang-en="Choose the correct answer:">Выбери правильный ответ:</p>
+                <div id="options-container" style="display: flex; flex-direction: column; gap: 10px; width: 100%;"></div>
+            </div>
+            
+            <div id="result" class="hidden"></div>
+            <div id="next-round" class="hidden">
+                <button onclick="nextRound()" id="next-btn" data-lang-ru="СЛЕДУЮЩИЙ РАУНД" data-lang-en="NEXT ROUND">СЛЕДУЮЩИЙ РАУНД</button>
+            </div>
+            <div id="new-training" class="hidden">
+                <a href="/training-speed" id="new-btn" data-lang-ru="НОВАЯ ТРЕНИРОВКА" data-lang-en="NEW TRAINING">НОВАЯ ТРЕНИРОВКА</a>
+            </div>
+        </div>
+        
+        <a href="/" class="back-button" id="back-btn" data-lang-ru="← На главную" data-lang-en="← Back to main">← На главную</a>
+    </div>
+
+    <script>
+        // ======== ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА ========
+        let currentLang = localStorage.getItem('brain-lang') || 'ru';
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'ru' ? 'en' : 'ru';
+            localStorage.setItem('brain-lang', currentLang);
+            updateLanguageUI();
+            updatePageContent();
+        }
+
+        function updateLanguageUI() {
+            const flag = document.getElementById('lang-flag');
+            const text = document.getElementById('lang-text');
+            if (currentLang === 'ru') {
+                flag.textContent = '🇷🇺';
+                text.textContent = 'RU';
+            } else {
+                flag.textContent = '🇬🇧';
+                text.textContent = 'EN';
+            }
+        }
+
+        function updatePageContent() {
+            // Обновляем все элементы с data-lang
+            document.querySelectorAll('[data-lang-ru]').forEach(el => {
+                if (currentLang === 'ru') {
+                    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                        el.placeholder = el.dataset.langRu;
+                    } else if (el.tagName === 'BUTTON' || el.tagName === 'A') {
+                        el.textContent = el.dataset.langRu;
+                    } else {
+                        el.textContent = el.dataset.langRu;
+                    }
+                } else {
+                    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                        el.placeholder = el.dataset.langEn || el.dataset.langRu;
+                    } else if (el.tagName === 'BUTTON' || el.tagName === 'A') {
+                        el.textContent = el.dataset.langEn || el.dataset.langRu;
+                    } else {
+                        el.textContent = el.dataset.langEn || el.dataset.langRu;
+                    }
+                }
+            });
+
+            // Обновляем tips-text (содержит HTML)
+            const tipsText = document.getElementById('tips-text');
+            if (currentLang === 'ru') {
+                tipsText.innerHTML = tipsText.dataset.langRu;
+            } else {
+                tipsText.innerHTML = tipsText.dataset.langEn || tipsText.dataset.langRu;
+            }
+        }
+
+        // ======== ОСНОВНАЯ ЛОГИКА ИГРЫ ========
+        const TOTAL_ROUNDS = 5;
+        let currentRound = 1;
+        let score = 0;
+        let timerInterval = null;
+        let currentText = {};
+        let answered = false;
+        
+        const level = parseInt(localStorage.getItem('level-speed')) || 2;
+        document.getElementById('level-display').textContent = level;
+
+        // ======== ТЕМЫ НА РУССКОМ ========
+        const topicsRU = [
+            { 
+                name: 'КВАНТОВАЯ ФИЗИКА',
+                facts: [
+                    { text: 'Квантовая запутанность позволяет частицам мгновенно обмениваться информацией на любых расстояниях.', keywords: ['запутанность', 'мгновенно', 'обмениваться', 'информацией'] },
+                    { text: 'Принцип неопределённости Гейзенберга утверждает, что невозможно одновременно точно измерить положение и импульс частицы.', keywords: ['неопределённости', 'Гейзенберга', 'одновременно', 'положение'] },
+                    { text: 'В квантовой механике существует явление квантового туннелирования, когда частица проходит через потенциальный барьер.', keywords: ['туннелирования', 'проходит', 'потенциальный', 'барьер'] }
+                ]
+            },
+            { 
+                name: 'НЕЙРОНАУКА',
+                facts: [
+                    { text: 'Нейропластичность позволяет мозгу изменять свою структуру в ответ на обучение и новый опыт.', keywords: ['нейропластичность', 'изменять', 'структуру', 'обучение'] },
+                    { text: 'Сон играет критическую роль в консолидации памяти и очистке мозга от токсичных белков.', keywords: ['сон', 'консолидации', 'памяти', 'очистке'] },
+                    { text: 'Дофаминовая система мозга отвечает за формирование привычек и мотивационное поведение.', keywords: ['дофаминовая', 'формирование', 'привычек', 'мотивационное'] }
+                ]
+            },
+            { 
+                name: 'ЭКОНОМИКА',
+                facts: [
+                    { text: 'Эффект Веблена описывает ситуацию, когда спрос на товар растёт вместе с его ценой из-за статусного потребления.', keywords: ['Веблена', 'спрос', 'растёт', 'ценой'] },
+                    { text: 'Теория игр изучает стратегические взаимодействия между агентами в условиях неопределённости.', keywords: ['игр', 'стратегические', 'взаимодействия', 'неопределённости'] },
+                    { text: 'Парадокс Гиффена возникает, когда рост цены на товар приводит к увеличению спроса на него.', keywords: ['Гиффена', 'рост', 'цены', 'увеличению'] }
+                ]
+            },
+            { 
+                name: 'ПСИХОЛОГИЯ',
+                facts: [
+                    { text: 'Эффект Даннинга-Крюгера показывает, что люди с низкой квалификацией склонны переоценивать свои способности.', keywords: ['Даннинга-Крюгера', 'низкой', 'квалификацией', 'переоценивать'] },
+                    { text: 'Когнитивный диссонанс возникает при столкновении убеждений человека с его действиями.', keywords: ['диссонанс', 'столкновении', 'убеждений', 'действиями'] },
+                    { text: 'Эффект Барнума объясняет, почему люди верят в общие характеристики, приписываемые им в гороскопах.', keywords: ['Барнума', 'общие', 'характеристики', 'гороскопах'] }
+                ]
+            },
+            { 
+                name: 'АСТРОФИЗИКА',
+                facts: [
+                    { text: 'Чёрные дыры образуются при коллапсе массивных звёзд и обладают гравитацией, удерживающей даже свет.', keywords: ['чёрные', 'коллапсе', 'массивных', 'гравитацией'] },
+                    { text: 'Красное смещение является ключевым доказательством расширения Вселенной и её возраста.', keywords: ['красное', 'смещение', 'доказательством', 'расширения'] },
+                    { text: 'Реликтовое излучение — это эхо Большого взрыва, сохранившееся со времён ранней Вселенной.', keywords: ['реликтовое', 'излучение', 'Большого', 'взрыва'] }
+                ]
+            }
+        ];
+
+        // ======== ТЕМЫ НА АНГЛИЙСКОМ ========
+        const topicsEN = [
+            { 
+                name: 'QUANTUM PHYSICS',
+                facts: [
+                    { text: 'Quantum entanglement allows particles to instantly exchange information over any distance.', keywords: ['quantum', 'entanglement', 'instantly', 'exchange', 'information'] },
+                    { text: 'Heisenberg\'s uncertainty principle states that you cannot simultaneously know the exact position and momentum of a particle.', keywords: ['heisenberg', 'uncertainty', 'principle', 'position', 'momentum'] },
+                    { text: 'Quantum tunneling is a phenomenon where a particle passes through a potential barrier.', keywords: ['quantum', 'tunneling', 'phenomenon', 'barrier'] }
+                ]
+            },
+            { 
+                name: 'NEUROSCIENCE',
+                facts: [
+                    { text: 'Neuroplasticity allows the brain to change its structure in response to learning and new experiences.', keywords: ['neuroplasticity', 'brain', 'structure', 'learning', 'experiences'] },
+                    { text: 'Sleep plays a critical role in memory consolidation and clearing toxic proteins from the brain.', keywords: ['sleep', 'memory', 'consolidation', 'toxic', 'proteins'] },
+                    { text: 'The brain\'s dopamine system is responsible for habit formation and motivational behavior.', keywords: ['dopamine', 'system', 'habit', 'formation', 'motivational'] }
+                ]
+            },
+            { 
+                name: 'ECONOMICS',
+                facts: [
+                    { text: 'The Veblen effect describes a situation where demand for a good increases along with its price due to status consumption.', keywords: ['veblen', 'effect', 'demand', 'status', 'consumption'] },
+                    { text: 'Game theory studies strategic interactions between agents under conditions of uncertainty.', keywords: ['game', 'theory', 'strategic', 'interactions', 'uncertainty'] },
+                    { text: 'The Giffen paradox occurs when a price increase leads to an increase in demand for a good.', keywords: ['giffen', 'paradox', 'price', 'increase', 'demand'] }
+                ]
+            },
+            { 
+                name: 'PSYCHOLOGY',
+                facts: [
+                    { text: 'The Dunning-Kruger effect shows that people with low competence tend to overestimate their abilities.', keywords: ['dunning', 'kruger', 'effect', 'competence', 'overestimate'] },
+                    { text: 'Cognitive dissonance occurs when a person\'s beliefs conflict with their actions.', keywords: ['cognitive', 'dissonance', 'beliefs', 'actions'] },
+                    { text: 'The Barnum effect explains why people believe in general characteristics attributed to them in horoscopes.', keywords: ['barnum', 'effect', 'general', 'characteristics', 'horoscopes'] }
+                ]
+            },
+            { 
+                name: 'ASTROPHYSICS',
+                facts: [
+                    { text: 'Black holes form from the collapse of massive stars and have gravity strong enough to trap even light.', keywords: ['black', 'holes', 'gravity', 'light'] },
+                    { text: 'Redshift is a key piece of evidence for the expansion of the universe and its age.', keywords: ['redshift', 'evidence', 'universe', 'age'] },
+                    { text: 'The cosmic microwave background is an echo of the Big Bang, preserved from the early universe.', keywords: ['cosmic', 'microwave', 'background', 'big', 'bang'] }
+                ]
+            }
+        ];
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function generateText() {
+            const topics = currentLang === 'ru' ? topicsRU : topicsEN;
+            const topic = topics[Math.floor(Math.random() * topics.length)];
+            const shuffledFacts = shuffleArray([...topic.facts]);
+            const selectedFacts = shuffledFacts.slice(0, 2);
+            
+            const text = `${topic.name}. ${selectedFacts[0].text} ${selectedFacts[1].text}`;
+            const correctAnswer = selectedFacts[0];
+            
+            const allTopicFacts = topic.facts.map(f => f.text);
+            const otherFacts = allTopicFacts.filter(f => f !== correctAnswer.text);
+            const shuffledOtherFacts = shuffleArray([...otherFacts]);
+            let options = [correctAnswer.text];
+            
+            for (let f of shuffledOtherFacts) {
+                if (f !== correctAnswer.text && options.length < 4) {
+                    options.push(f);
+                }
+            }
+            
+            if (options.length < 4) {
+                const allFacts = topics.flatMap(t => t.facts.map(f => f.text));
+                const shuffledAll = shuffleArray([...allFacts]);
+                for (let f of shuffledAll) {
+                    if (f !== correctAnswer.text && options.length < 4) {
+                        options.push(f);
+                    }
+                }
+            }
+            
+            options = shuffleArray(options);
+            
+            const question = currentLang === 'ru' ? 'Какое утверждение было в тексте?' : 'Which statement was in the text?';
+            
+            return {
+                text: text,
+                question: question,
+                correct: correctAnswer.text,
+                options: options
+            };
+        }
+
+        function getTextForLevel() {
+            let text = generateText();
+            let attempts = 0;
+            while ((text.options[0] === text.options[1] || 
+                    text.options[0] === text.options[2] || 
+                    text.options[1] === text.options[2]) && attempts < 20) {
+                text = generateText();
+                attempts++;
+            }
+            return text;
+        }
+
+        function startRound() {
+            answered = false;
+            currentText = getTextForLevel();
+            
+            const textDisplay = document.getElementById('text-display');
+            textDisplay.textContent = currentText.text;
+            textDisplay.style.display = 'block';
+            
+            document.getElementById('answer-area').classList.add('hidden');
+            document.getElementById('result').classList.add('hidden');
+            document.getElementById('next-round').classList.add('hidden');
+            document.getElementById('new-training').classList.add('hidden');
+            
+            document.getElementById('timer').style.display = 'block';
+            let timeLeft = level <= 2 ? 15 : level <= 3 ? 12 : 10;
+            document.getElementById('timer').textContent = `⏱️ ${timeLeft} sec`;
+            
+            document.getElementById('instruction').textContent = currentLang === 'ru' ? 'Прочитай текст!' : 'Read the text!';
+            
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(function() {
+                timeLeft--;
+                document.getElementById('timer').textContent = `⏱️ ${timeLeft} sec`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    textDisplay.style.display = 'none';
+                    document.getElementById('timer').style.display = 'none';
+                    document.getElementById('instruction').textContent = currentLang === 'ru' ? 'Выбери правильный ответ!' : 'Choose the correct answer!';
+                    
+                    showOptions();
+                    document.getElementById('answer-area').classList.remove('hidden');
+                }
+            }, 1000);
+        }
+
+        function showOptions() {
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            const questionDiv = document.createElement('div');
+            questionDiv.style.fontSize = '18px';
+            questionDiv.style.fontWeight = '600';
+            questionDiv.style.color = '#2D2D2D';
+            questionDiv.style.marginBottom = '15px';
+            questionDiv.textContent = currentText.question;
+            container.appendChild(questionDiv);
+            
+            const shuffledOptions = shuffleArray([...currentText.options]);
+            
+            shuffledOptions.forEach(option => {
+                const btn = document.createElement('button');
+                btn.textContent = option;
+                btn.style.width = '100%';
+                btn.style.padding = '14px 20px';
+                btn.style.background = '#f8f9fa';
+                btn.style.border = '2px solid #ddd';
+                btn.style.borderRadius = '12px';
+                btn.style.fontSize = '15px';
+                btn.style.cursor = 'pointer';
+                btn.style.transition = '0.3s';
+                btn.style.textAlign = 'left';
+                btn.style.lineHeight = '1.5';
+                
+                btn.onmouseenter = function() {
+                    if (!this.classList.contains('selected')) {
+                        this.style.background = '#f0f0ff';
+                        this.style.borderColor = '#6C63FF';
+                    }
+                };
+                btn.onmouseleave = function() {
+                    if (!this.classList.contains('selected')) {
+                        this.style.background = '#f8f9fa';
+                        this.style.borderColor = '#ddd';
+                    }
+                };
+                btn.onclick = function() {
+                    if (answered) return;
+                    document.querySelectorAll('#options-container button').forEach(b => {
+                        if (b.classList.contains('selected')) {
+                            b.style.background = '#f8f9fa';
+                            b.style.borderColor = '#ddd';
+                            b.style.color = '#2D2D2D';
+                            b.classList.remove('selected');
+                        }
+                    });
+                    this.style.background = '#6C63FF';
+                    this.style.borderColor = '#6C63FF';
+                    this.style.color = 'white';
+                    this.classList.add('selected');
+                    checkAnswer(option);
+                };
+                
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedOption) {
+            if (answered) return;
+            answered = true;
+            
+            const isCorrect = selectedOption === currentText.correct;
+            
+            if (isCorrect) {
+                score += 100;
+            }
+            
+            document.getElementById('score').textContent = score;
+            
+            const resultDiv = document.getElementById('result');
+            if (isCorrect) {
+                const msg = currentLang === 'ru' ? '✅ Правильно! +100 очков 🎉<br>Всего: ' : '✅ Correct! +100 points 🎉<br>Total: ';
+                resultDiv.innerHTML = msg + score;
+            } else {
+                const msg = currentLang === 'ru' ? '❌ Правильный ответ: ' : '❌ Correct answer: ';
+                resultDiv.innerHTML = msg + `<strong>${currentText.correct}</strong>`;
+            }
+            resultDiv.classList.remove('hidden');
+            
+            document.querySelectorAll('#options-container button').forEach(btn => {
+                if (btn.textContent === currentText.correct) {
+                    btn.style.background = '#44CC44';
+                    btn.style.borderColor = '#44CC44';
+                    btn.style.color = 'white';
+                }
+            });
+            
+            if (currentRound >= TOTAL_ROUNDS) {
+                setTimeout(showFinalResult, 1500);
+            } else {
+                document.getElementById('next-round').classList.remove('hidden');
+                const nextBtn = document.getElementById('next-btn');
+                nextBtn.textContent = currentLang === 'ru' ? 'СЛЕДУЮЩИЙ РАУНД' : 'NEXT ROUND';
+            }
+        }
+
+        function nextRound() {
+            currentRound++;
+            document.getElementById('round').textContent = currentRound;
+            document.getElementById('score').textContent = score;
+            startRound();
+        }
+
+        function showFinalResult() {
+            const percentage = Math.round((score / (TOTAL_ROUNDS * 100)) * 100);
+            let emoji = "😊", message = currentLang === 'ru' ? 'Хороший результат!' : 'Good result!';
+            if (percentage === 100) { emoji = "🏆"; message = currentLang === 'ru' ? 'Ты - скоростной читатель!' : 'You are a speed reader!'; }
+            else if (percentage >= 80) { emoji = "🌟"; message = currentLang === 'ru' ? 'Отличная скорость!' : 'Great speed!'; }
+            else if (percentage >= 60) { emoji = "💪"; message = currentLang === 'ru' ? 'Неплохо, тренируйся!' : 'Not bad, keep training!'; }
+            else { emoji = "📚"; message = currentLang === 'ru' ? 'Попробуй ещё раз!' : 'Try again!'; }
+            
+            document.getElementById('result').innerHTML = `
+                <h3>🎯 ${currentLang === 'ru' ? 'ТРЕНИРОВКА ЗАВЕРШЕНА!' : 'TRAINING COMPLETE!'}</h3>
+                <div class="emoji">${emoji}</div>
+                <div>${currentLang === 'ru' ? 'Правильных:' : 'Correct:'} ${Math.round(score/100)} ${currentLang === 'ru' ? 'из' : 'of'} ${TOTAL_ROUNDS}</div>
+                <div style="font-size: 32px; font-weight: bold; color: #6C63FF; margin: 15px 0;">
+                    ${score} ${currentLang === 'ru' ? 'очков' : 'points'} (${percentage}%)
+                </div>
+                <div style="font-size: 20px;">${message}</div>
+            `;
+            document.getElementById('result').classList.remove('hidden');
+            document.getElementById('new-training').classList.remove('hidden');
+            const newBtn = document.getElementById('new-btn');
+            newBtn.textContent = currentLang === 'ru' ? 'НОВАЯ ТРЕНИРОВКА' : 'NEW TRAINING';
+        }
+
+        function toggleTips(header) {
+            const container = header.closest('.tips-container');
+            const body = container.querySelector('.tips-body');
+            const toggle = container.querySelector('.tips-toggle');
+            
+            body.classList.toggle('collapsed');
+            toggle.textContent = body.classList.contains('collapsed') ? '▶' : '▼';
+        }
+
+        // ======== ЗАПУСК ========
+        updateLanguageUI();
+        setTimeout(updatePageContent, 50);
+        startRound();
+    </script>
+</body>
+</html>
