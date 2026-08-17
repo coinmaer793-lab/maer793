@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тренировка памяти</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="logo">🧠 BRAIN TRAINING</div>
+
+        <div class="training-stats">
+            <span>Раунд: <span id="round">1</span>/5</span>
+            <span>Очки: <span id="score">0</span></span>
+            <span>Уровень: <span id="level-display">3</span></span>
+        </div>
+
+        <div class="card">
+            <!-- СОВЕТ (сворачиваемый) -->
+            <div class="tips-container">
+                <div class="tips-header" onclick="toggleTips(this)">
+                    <div class="tips-title">Совет по запоминанию слов</div>
+                    <button class="tips-toggle">▼</button>
+                </div>
+                <div class="tips-body">
+                    <div class="tips-text">
+                        <strong>Метод "Цепочка ассоциаций":</strong> Свяжи слова в одну безумную историю!
+                        <br><br>
+                        🎯 <strong>Секрет:</strong> Чем <strong>смешнее</strong> история — тем лучше запоминается!
+                    </div>
+                </div>
+            </div>
+
+            <h2 id="instruction">Запомни слова</h2>
+            <div id="timer">12</div>
+            <div id="words-display"
+                style="font-size: 28px; font-weight: bold; padding: 30px; background: #f8f9fa; border-radius: 15px; margin: 15px 0; line-height: 2; color: #2D2D2D;">
+            </div>
+
+            <div id="answer-area" class="hidden">
+                <p style="color: #555; margin-bottom: 15px;">Выбери все слова, которые запомнил:</p>
+                <div id="options-container" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+                </div>
+                <br>
+                <button onclick="checkAnswer()" class="start-button">ПРОВЕРИТЬ</button>
+            </div>
+
+            <div id="result" class="hidden"></div>
+            <div id="next-round" class="hidden">
+                <button onclick="nextRound()" class="start-button">СЛЕДУЮЩИЙ РАУНД</button>
+            </div>
+            <div id="new-training" class="hidden">
+                <a href="/training-memory" class="start-button">НОВАЯ ТРЕНИРОВКА</a>
+            </div>
+        </div>
+
+        <a href="/" class="back-button">← На главную</a>
+    </div>
+
+    <script>
+        const TOTAL_ROUNDS = 5;
+        let currentRound = 1;
+        let score = 0;
+        let timerInterval = null;
+        let currentWords = [];
+        let allDisplayWords = [];
+        let selectedWords = [];
+
+        const level = parseInt(localStorage.getItem('level-memory')) || 3;
+        document.getElementById('level-display').textContent = level;
+
+        const wordCounts = { 1: 4, 2: 6, 3: 8, 4: 10, 5: 12 };
+        const wordCount = wordCounts[level] || 8;
+
+        const allWords = [
+            "солнце", "дом", "дерево", "река", "гора", "цветок", "птица", "море",
+            "звезда", "луна", "облако", "ветер", "огонь", "вода", "земля", "книга",
+            "стол", "стул", "окно", "дверь", "машина", "город", "парк", "мост",
+            "лето", "зима", "весна", "осень", "день", "ночь", "утро", "вечер",
+            "счастье", "дружба", "мечта", "путь", "свет", "тишина", "радость", "удача"
+        ];
+
+        function getRandomWords(count) {
+            const shuffled = [...allWords].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function startRound() {
+            selectedWords = [];
+            currentWords = getRandomWords(wordCount);
+
+            // Смешиваем с дополнительными словами для выбора
+            const extraWords = getRandomWords(6);
+            allDisplayWords = shuffleArray([...currentWords, ...extraWords]);
+
+            document.getElementById('words-display').textContent = currentWords.join('  •  ');
+            document.getElementById('words-display').style.display = "block";
+
+            document.getElementById('answer-area').classList.add('hidden');
+            document.getElementById('result').classList.add('hidden');
+            document.getElementById('next-round').classList.add('hidden');
+            document.getElementById('new-training').classList.add('hidden');
+
+            document.getElementById('timer').style.display = "block";
+            let timeLeft = level <= 2 ? 15 : level <= 3 ? 12 : 8;
+            document.getElementById('timer').textContent = timeLeft;
+
+            document.getElementById('instruction').textContent = `Запомни ${wordCount} слов!`;
+
+            if (timerInterval) clearInterval(timerInterval);
+
+            timerInterval = setInterval(function () {
+                timeLeft--;
+                document.getElementById('timer').textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('words-display').style.display = "none";
+                    document.getElementById('timer').style.display = "none";
+                    document.getElementById('instruction').textContent = "Выбери все слова, которые запомнил!";
+                    showOptions();
+                    document.getElementById('answer-area').classList.remove('hidden');
+                }
+            }, 1000);
+        }
+
+        function showOptions() {
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            allDisplayWords.forEach(word => {
+                const btn = document.createElement('button');
+                btn.textContent = word;
+                btn.style.padding = '10px 20px';
+                btn.style.background = '#f8f9fa';
+                btn.style.border = '2px solid #ddd';
+                btn.style.borderRadius = '10px';
+                btn.style.fontSize = '16px';
+                btn.style.cursor = 'pointer';
+                btn.style.transition = '0.3s';
+                btn.style.fontWeight = '500';
+
+                btn.onmouseenter = function () {
+                    if (!this.classList.contains('selected')) {
+                        this.style.background = '#f0f0ff';
+                        this.style.borderColor = '#6C63FF';
+                    }
+                };
+                btn.onmouseleave = function () {
+                    if (!this.classList.contains('selected')) {
+                        this.style.background = '#f8f9fa';
+                        this.style.borderColor = '#ddd';
+                    }
+                };
+                btn.onclick = function () {
+                    this.classList.toggle('selected');
+                    if (this.classList.contains('selected')) {
+                        this.style.background = '#6C63FF';
+                        this.style.borderColor = '#6C63FF';
+                        this.style.color = 'white';
+                        selectedWords.push(word);
+                    } else {
+                        this.style.background = '#f8f9fa';
+                        this.style.borderColor = '#ddd';
+                        this.style.color = '#2D2D2D';
+                        const index = selectedWords.indexOf(word);
+                        if (index > -1) selectedWords.splice(index, 1);
+                    }
+                };
+
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer() {
+            let correct = 0;
+            selectedWords.forEach(word => {
+                if (currentWords.includes(word)) correct++;
+            });
+
+            // Проверяем, выбраны ли все слова
+            const allSelected = currentWords.every(word => selectedWords.includes(word));
+
+            let points = 0;
+            if (allSelected && correct === currentWords.length) {
+                points = 100;
+            } else if (correct > 0) {
+                points = Math.round((correct / currentWords.length) * 70);
+            }
+
+            score += points;
+            document.getElementById('score').textContent = score;
+
+            const resultDiv = document.getElementById('result');
+            if (points === 100) {
+                resultDiv.innerHTML = `✅ ВСЕ СЛОВА! +100 очков 🎉<br>Всего: ${score}`;
+            } else if (points > 0) {
+                const missed = currentWords.filter(w => !selectedWords.includes(w));
+                resultDiv.innerHTML = `❌ Запомнено: ${correct} из ${currentWords.length}<br>Пропущено: ${missed.join(', ')}<br>+${points} очков`;
+            } else {
+                resultDiv.innerHTML = `❌ Не выбрано ни одного правильного слова<br>Правильные слова: ${currentWords.join(', ')}`;
+            }
+            resultDiv.classList.remove('hidden');
+
+            // Отключаем кнопки
+            document.querySelectorAll('#options-container button').forEach(btn => {
+                btn.style.cursor = 'default';
+                btn.onclick = null;
+                btn.onmouseenter = null;
+                btn.onmouseleave = null;
+                // Подсвечиваем правильные слова
+                if (currentWords.includes(btn.textContent)) {
+                    if (btn.classList.contains('selected')) {
+                        btn.style.background = '#44CC44';
+                        btn.style.borderColor = '#44CC44';
+                        btn.style.color = 'white';
+                    } else {
+                        btn.style.background = '#FF6B6B';
+                        btn.style.borderColor = '#FF6B6B';
+                        btn.style.color = 'white';
+                    }
+                }
+            });
+
+            if (currentRound >= TOTAL_ROUNDS) {
+                setTimeout(showFinalResult, 1500);
+            } else {
+                document.getElementById('next-round').classList.remove('hidden');
+            }
+        }
+
+        function nextRound() {
+            currentRound++;
+            document.getElementById('round').textContent = currentRound;
+            document.getElementById('score').textContent = score;
+            startRound();
+        }
+
+        function showFinalResult() {
+            const percentage = Math.round((score / (TOTAL_ROUNDS * 100)) * 100);
+            let emoji = "😊", message = "Хороший результат!";
+            if (percentage === 100) { emoji = "🏆"; message = "Феноменальная память!"; }
+            else if (percentage >= 80) { emoji = "🌟"; message = "Отличная работа!"; }
+            else if (percentage >= 60) { emoji = "💪"; message = "Неплохо, тренируйся!"; }
+            else { emoji = "📚"; message = "Продолжай тренироваться!"; }
+
+            document.getElementById('result').innerHTML = `
+                <h3>🎯 ТРЕНИРОВКА ЗАВЕРШЕНА!</h3>
+                <div class="emoji">${emoji}</div>
+                <div style="font-size: 32px; font-weight: bold; color: #6C63FF; margin: 15px 0;">
+                    ${score} очков (${percentage}%)
+                </div>
+                <div style="font-size: 20px;">${message}</div>
+            `;
+            document.getElementById('result').classList.remove('hidden');
+            document.getElementById('new-training').classList.remove('hidden');
+        }
+
+        function toggleTips(header) {
+            const container = header.closest('.tips-container');
+            const body = container.querySelector('.tips-body');
+            const toggle = container.querySelector('.tips-toggle');
+
+            body.classList.toggle('collapsed');
+            toggle.textContent = body.classList.contains('collapsed') ? '▶' : '▼';
+        }
+
+        startRound();
+    </script>
+</body>
+
+</html>
