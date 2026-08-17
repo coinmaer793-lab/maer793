@@ -1,0 +1,506 @@
+/* ========== ОБЩИЕ СТИЛИ ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 700px;
+    text-align: center;
+}
+
+/* ========== ЛОГОТИП ========== */
+.logo {
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: 4px;
+    background: linear-gradient(135deg, #6C63FF, #FF6B6B);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #aaa;
+    font-size: 16px;
+    margin-bottom: 30px;
+}
+
+/* ========== КАРТОЧКА ========== */
+.card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px 30px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    color: #2D2D2D;
+    min-height: 350px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.card h2 {
+    font-size: 28px;
+    margin-bottom: 15px;
+    color: #2D2D2D;
+}
+
+.card p {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+/* ========== КНОПКИ ========== */
+.start-button {
+    background: #6C63FF;
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    font-size: 18px;
+    font-weight: 700;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    letter-spacing: 1px;
+}
+
+.start-button:hover {
+    background: #5A52D5;
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(108, 99, 255, 0.4);
+}
+
+.back-button {
+    display: inline-block;
+    margin-top: 20px;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.back-button:hover {
+    color: white;
+}
+
+/* ========== ВКЛАДКИ ========== */
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.tab {
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 2px solid transparent;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+}
+
+.tab:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.tab.active {
+    background: #6C63FF;
+    border-color: #6C63FF;
+    box-shadow: 0 5px 20px rgba(108, 99, 255, 0.4);
+}
+
+.tab-content {
+    width: 100%;
+}
+
+.tab-pane {
+    display: none;
+    animation: fadeIn 0.5s ease;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========== ВЫБОР УРОВНЯ ========== */
+.level-selector {
+    margin: 20px 0;
+    width: 100%;
+}
+
+.level-selector label {
+    display: block;
+    font-weight: 600;
+    color: #2D2D2D;
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.level-selector select {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    background: white;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.level-selector select:hover {
+    border-color: #6C63FF;
+}
+
+.level-selector select:focus {
+    border-color: #6C63FF;
+    box-shadow: 0 0 20px rgba(108, 99, 255, 0.15);
+}
+
+/* ========== СТРАНИЦЫ ТРЕНИРОВОК ========== */
+.training-stats {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+    color: white;
+    font-size: 18px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+#number-display {
+    font-size: 64px;
+    font-weight: bold;
+    letter-spacing: 12px;
+    margin: 20px 0;
+    color: #2D2D2D;
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 15px;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    border: 3px dashed #6C63FF;
+}
+
+#timer {
+    font-size: 48px;
+    font-weight: 900;
+    color: #6C63FF;
+    margin: 10px 0 20px 0;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ========== ПОЛЯ ВВОДА ========== */
+input[type="text"],
+input[type="number"] {
+    font-size: 28px;
+    padding: 15px 20px;
+    width: 90%;
+    max-width: 300px;
+    text-align: center;
+    border: 3px solid #ddd;
+    border-radius: 12px;
+    outline: none;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    letter-spacing: 5px;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+    border-color: #6C63FF;
+    box-shadow: 0 0 20px rgba(108, 99, 255, 0.2);
+}
+
+/* ========== РЕЗУЛЬТАТ ========== */
+#result {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 12px;
+    font-size: 18px;
+    background: #f8f9fa;
+    width: 100%;
+    line-height: 1.8;
+}
+
+#result h3 {
+    color: #2D2D2D;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+#result .emoji {
+    font-size: 48px;
+    margin: 10px 0;
+}
+
+/* ========== СВОРАЧИВАЕМЫЕ ПОДСКАЗКИ ========== */
+.tips-container {
+    background: linear-gradient(135deg, #f0f4ff, #e8edff);
+    border-left: 5px solid #6C63FF;
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin: 15px 0 25px 0;
+    text-align: left;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.tips-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.tips-header:hover .tips-title {
+    color: #5A52D5;
+}
+
+.tips-title {
+    font-weight: 700;
+    color: #6C63FF;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+}
+
+.tips-title::before {
+    content: "💡";
+}
+
+.tips-toggle {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #6C63FF;
+    transition: 0.3s;
+    padding: 0 5px;
+}
+
+.tips-toggle:hover {
+    transform: scale(1.2);
+}
+
+.tips-body {
+    overflow: hidden;
+    max-height: 500px;
+    transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease;
+    opacity: 1;
+    padding-top: 10px;
+}
+
+.tips-body.collapsed {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+}
+
+.tips-text {
+    color: #333;
+    font-size: 15px;
+    line-height: 1.7;
+    margin: 0;
+}
+
+.tips-text strong {
+    color: #6C63FF;
+}
+
+.tips-text .highlight {
+    background: #6C63FF;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+/* ========== КНОПКА ПЕРЕКЛЮЧЕНИЯ ЯЗЫКА ========== */
+.lang-switch {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    background: linear-gradient(135deg, #6C63FF, #FF6B6B);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50px;
+    padding: 12px 24px;
+    color: white;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 20px rgba(108, 99, 255, 0.5);
+    backdrop-filter: blur(10px);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.lang-switch:hover {
+    transform: scale(1.08);
+    box-shadow: 0 8px 35px rgba(108, 99, 255, 0.7);
+    border-color: rgba(255, 255, 255, 0.8);
+}
+
+.lang-switch:active {
+    transform: scale(0.95);
+}
+
+.lang-switch .flag {
+    font-size: 24px;
+    line-height: 1;
+}
+
+.lang-switch .lang-text {
+    font-size: 14px;
+    font-weight: 800;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 2px 12px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+}
+
+/* ========== АДАПТАЦИЯ ========== */
+@media (max-width: 768px) {
+    .tabs {
+        gap: 8px;
+    }
+    
+    .tab {
+        padding: 10px 16px;
+        font-size: 12px;
+        flex: 1;
+        min-width: 80px;
+        text-align: center;
+    }
+    
+    .card {
+        padding: 25px 20px;
+        min-height: 300px;
+    }
+    
+    #number-display {
+        font-size: 40px;
+        letter-spacing: 8px;
+        padding: 20px;
+        min-height: 90px;
+    }
+    
+    #timer {
+        font-size: 36px;
+    }
+    
+    input[type="text"],
+    input[type="number"] {
+        font-size: 22px;
+        padding: 12px 15px;
+    }
+    
+    .lang-switch {
+        top: 10px;
+        right: 10px;
+        padding: 8px 16px;
+        font-size: 12px;
+        gap: 8px;
+    }
+    
+    .lang-switch .flag {
+        font-size: 18px;
+    }
+    
+    .lang-switch .lang-text {
+        font-size: 11px;
+        padding: 2px 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .tab {
+        font-size: 10px;
+        padding: 8px 12px;
+    }
+    
+    #number-display {
+        font-size: 32px;
+        letter-spacing: 5px;
+        padding: 15px;
+        min-height: 70px;
+    }
+    
+    #timer {
+        font-size: 28px;
+    }
+    
+    input[type="text"],
+    input[type="number"] {
+        font-size: 18px;
+        padding: 10px;
+    }
+    
+    .lang-switch {
+        top: 8px;
+        right: 8px;
+        padding: 6px 12px;
+        font-size: 11px;
+        gap: 6px;
+        border-radius: 30px;
+    }
+    
+    .lang-switch .flag {
+        font-size: 16px;
+    }
+    
+    .lang-switch .lang-text {
+        font-size: 10px;
+        padding: 1px 6px;
+    }
+}
